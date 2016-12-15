@@ -128,16 +128,17 @@
       cmd: bash configure
       chdir: "{{ path_for_check_mk_package }}"
        
-  - name: because dima is doing more hacks. because is know stuff.
-    shell: 
-      cmd: cp -rp arm_v7-linux armv7l-linux
-      chdir: "{{ path_for_check_mk_package }}/packages/snap7/snap7-full-1.3.0/build/bin/"
      
   - name: run make
     shell:
       cmd: make
       chdir: "{{ path_for_check_mk_package }}"
   
+  - name: because dima is doing more hacks. because is know stuff.
+    shell: 
+      cmd: cp -rp arm_v7-linux armv7l-linux
+      chdir: "{{ path_for_check_mk_package }}/packages/snap7/snap7-full-1.3.0/build/bin/"
+
   - name: run make pack
     shell:
       cmd: make pack
