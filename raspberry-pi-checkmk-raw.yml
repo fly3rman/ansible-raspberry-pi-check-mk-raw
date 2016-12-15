@@ -52,6 +52,7 @@
      - gettext  
      - libgsf-1-dev  
      - librrd-dev 
+     - libapache2-mod-fcgid
      
      path_for_check_mk_package: /root/check-mk-raw-1.2.8p14.cre
      path_for_snap7_package: /root/check-mk-raw-1.2.8p14.cre/packages/snap7/snap7-full-1.3.0.tar.gz
@@ -136,7 +137,7 @@
   
   - name: because dima is doing more hacks. because is know stuff.
     shell: 
-      cmd: cp -rp arm_v7-linux armv7l-linux
+      cmd: cp -r arm_v7-linux armv7l-linux
       chdir: "{{ path_for_check_mk_package }}/packages/snap7/snap7-full-1.3.0/build/bin/"
 
   - name: run make pack
@@ -149,7 +150,7 @@
       cmd: make setup
       chdir: "{{ path_for_check_mk_package }}"
 
-### End for tag=compile. ###
+## End for tag=compile. ###
 
 # ### This here is only for tag=precompiled. ###
 #   - name: copy CheckMK precompiled package to the Raspberry pi
@@ -180,6 +181,11 @@
 #       cmd: make setup
 #       chdir: "{{ path_for_check_mk_package }}"
 # ### End for tag=precompiled. ###
+
+  - name: Create the group 
+    group:
+      name: omd
+      state: present
 
   - name: Create CheckMK Site
     command: omd create "{{ hostname }}"
