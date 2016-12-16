@@ -166,5 +166,10 @@
 
   - name: Start CheckMK Site
     command: omd start "{{ hostname }}"
+  
+  - name: Enable Apache2 modules
+    apache2_module:
+      state: present
+      name: proxy_http
     
   - debug: var=checkmkstart.stdout_lines
