@@ -1,5 +1,7 @@
 #DH xx.12.2016
-#u got questions? ask me!
+#This ansible playbook will download and install checkMK on your raspbery pi. 
+#It is not perfect .. but its something.
+#Thanks to https://mirzadedic.ca/node/23 for fixing the problem with snap7 package
 ---
 - name: Deploy CheckMK-RAW on an raspberry pi
   hosts: 10.199.30.190
@@ -61,6 +63,12 @@
      filename_for_check_mk_precompiled_package: check-mk-raw-1.2.8p14.cre-compiled.tar.gz
 
   tasks:
+  - name: download check-mk-raw source code
+    get_url:
+      url: https://mathias-kettner.de/support/1.2.8p14/check-mk-raw-1.2.8p14.cre.tar.gz  
+      dest: /root/{{ filename_for_check_mk_source_package }}}
+      checksum: sha256:0cbb93536985e1608805f479552b733136752c2a0a420200e85cfb58ebc8172a
+ 
   - name: check python is installed in container
     raw: dpkg -s python
     register: python_install_check
@@ -73,14 +81,6 @@
 
   - name: Create the .ssh directory
     file: path=/root/.ssh state=directory
-
-  # - name: Push SSH Config to container
-  #   copy:
-  #     src: ~/.ssh/authorized_keys
-  #     dest: /root/.ssh/authorized_keys
-  #     owner: root
-  #     group: root
-  #     mode: 0600
 
   - name: Update old packages
     apt:
@@ -98,8 +98,6 @@
       name={{ item }} state=latest update_cache=yes cache_valid_time=3600
     with_items: "{{ optional_packages_to_install }}"
 
-### This here is only for tag=compile. ###
-### installation of source version of check_MK ###
   - name: copy CheckMK Source to the Raspberry pi
     copy:
       src: ./files/{{ filename_for_check_mk_source_package }}
@@ -128,7 +126,6 @@
     shell:
       cmd: bash configure
       chdir: "{{ path_for_check_mk_package }}"
-       
      
   - name: run make
     shell:
@@ -149,38 +146,6 @@
     shell:
       cmd: make setup
       chdir: "{{ path_for_check_mk_package }}"
-
-## End for tag=compile. ###
-
-# ### This here is only for tag=precompiled. ###
-#   - name: copy CheckMK precompiled package to the Raspberry pi
-#     copy:
-#       src: ./files/{{ filename_for_check_mk_precompiled_package }}
-#       dest: /root/{{ filename_for_check_mk_precompiled_package }}
-#       owner: root
-#       group: root
-
-#   - name: unarchive the packge
-#     unarchive:
-#       src: /root/{{ filename_for_check_mk_precompiled_package }}
-#       dest: /root/
-#       remote_src: yes
-
-#   - name: run configure
-#     shell:
-#       cmd: bash configure
-#       chdir: "{{ path_for_check_mk_package }}"
-
-#   - name: run make pack
-#     shell:
-#       cmd: make pack
-#       chdir: "{{ path_for_check_mk_package }}"
-
-#   - name: run make setup
-#     shell:
-#       cmd: make setup
-#       chdir: "{{ path_for_check_mk_package }}"
-# ### End for tag=precompiled. ###
 
   - name: Create the group 
     group:
