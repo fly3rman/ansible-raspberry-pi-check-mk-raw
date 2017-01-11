@@ -4,9 +4,9 @@
 #Thanks to https://mirzadedic.ca/node/23 for fixing the problem with snap7 package
 ---
 - name: Deploy CheckMK-RAW on an raspberry pi
-  hosts: 10.199.30.190
+  hosts: h01mon01
   vars:
-     hostname: m0Xmon01
+     hostname: h01mon01
      packages_to_install:
      - aptitude
      - unattended-upgrades
@@ -15,6 +15,7 @@
      - iftop 
      - check-mk-agent
      optional_packages_to_install:
+     - python-ldap 
      - build-essential 
      - patch 
      - fping 
@@ -55,7 +56,10 @@
      - libgsf-1-dev  
      - librrd-dev 
      - libapache2-mod-fcgid
-     
+     - php5
+     - xinetd
+     - dialog
+
      path_for_check_mk_package: /root/check-mk-raw-1.2.8p14.cre
      path_for_snap7_package: /root/check-mk-raw-1.2.8p14.cre/packages/snap7/snap7-full-1.3.0.tar.gz
      dest_path_for_snap7_package: /root/check-mk-raw-1.2.8p14.cre/packages/snap7/
@@ -66,7 +70,7 @@
   - name: download check-mk-raw source code
     get_url:
       url: https://mathias-kettner.de/support/1.2.8p14/check-mk-raw-1.2.8p14.cre.tar.gz  
-      dest: /root/{{ filename_for_check_mk_source_package }}}
+      dest: /root/{{ filename_for_check_mk_source_package }}
       checksum: sha256:0cbb93536985e1608805f479552b733136752c2a0a420200e85cfb58ebc8172a
  
   - name: check python is installed in container
@@ -163,13 +167,16 @@
   - name: Because DH wants it that way
     shell:
       cmd: a2enconf zzz_omd.conf
-
-  - name: Start CheckMK Site
-    command: omd start "{{ hostname }}"
   
   - name: Enable Apache2 modules
     apache2_module:
       state: present
       name: proxy_http
-    
+
+  - name: Start CheckMK Site
+    command: omd start "{{ hostname }}"
+
+#OMD[m05mon01]:~$ omd config set TMPFS off
+#omd config set LIVESTATUS_TCP on
+#ln -s /opt/omd /omd
   - debug: var=checkmkstart.stdout_lines
