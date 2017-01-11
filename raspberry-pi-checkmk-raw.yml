@@ -176,7 +176,4 @@
   - name: Start CheckMK Site
     command: omd start "{{ hostname }}"
 
-#OMD[m05mon01]:~$ omd config set TMPFS off
-#omd config set LIVESTATUS_TCP on
-#ln -s /opt/omd /omd
   - debug: var=checkmkstart.stdout_lines
