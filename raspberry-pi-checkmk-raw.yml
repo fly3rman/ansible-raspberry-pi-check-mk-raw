@@ -4,9 +4,9 @@
 #Thanks to https://mirzadedic.ca/node/23 for fixing the problem with snap7 package
 ---
 - name: Deploy CheckMK-RAW on an raspberry pi
-  hosts: m05mon01
+  hosts: m0xmon01
   vars:
-     hostname: m05mon01
+     hostname: m0xmon01
      packages_to_install:
      - aptitude
      - unattended-upgrades
@@ -183,7 +183,7 @@
       name: proxy_http
 
   - name: Enable TCP port for live monitoring
-    command: omd omd config "{{ hostname }}" set LIVESTATUS_TCP ON 
+    command: omd config "{{ hostname }}" set LIVESTATUS_TCP ON 
 
   - name: Start CheckMK Site
     command: omd start "{{ hostname }}"
