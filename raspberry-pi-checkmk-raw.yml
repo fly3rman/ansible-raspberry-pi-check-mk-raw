@@ -4,9 +4,9 @@
 #Thanks to https://mirzadedic.ca/node/23 for fixing the problem with snap7 package
 ---
 - name: Deploy CheckMK-RAW on an raspberry pi
-  hosts: h01mon01
+  hosts: m05mon01
   vars:
-     hostname: h01mon01
+     hostname: m05mon01
      packages_to_install:
      - aptitude
      - unattended-upgrades
@@ -65,6 +65,7 @@
      dest_path_for_snap7_package: /root/check-mk-raw-1.2.8p14.cre/packages/snap7/
      filename_for_check_mk_source_package: check-mk-raw-1.2.8p14.cre.tar.gz
      filename_for_check_mk_precompiled_package: check-mk-raw-1.2.8p14.cre-compiled.tar.gz
+     path_for_auth_ssh_keys: authorized_keys
 
   tasks:
   - name: download check-mk-raw source code
@@ -78,13 +79,21 @@
     register: python_install_check
     failed_when: python_install_check.rc not in [0, 1]
     changed_when: false
-
+#pretask
   - name: install python in container
     raw: apt-get install -y python
     when: python_install_check.rc == 1
 
   - name: Create the .ssh directory
     file: path=/root/.ssh state=directory
+  
+  - name: Push SSH Config to container
+    copy:
+      src: "{{ path_for_auth_ssh_keys }}"
+      dest: /root/.ssh/authorized_keys
+      owner: root
+      group: root
+      mode: 0600
 
   - name: Update old packages
     apt:
@@ -172,6 +181,9 @@
     apache2_module:
       state: present
       name: proxy_http
+
+  - name: Enable TCP port for live monitoring
+    command: omd omd config "{{ hostname }}" set LIVESTATUS_TCP ON 
 
   - name: Start CheckMK Site
     command: omd start "{{ hostname }}"
